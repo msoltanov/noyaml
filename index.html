@@ -260,7 +260,7 @@ jobs:
             container.innerHTML = '';
             container.className = '';
 
-            monaco.editor.create(container, {
+            const ed = monaco.editor.create(container, {
                 value: content,
                 language: 'yaml',
                 fontSize: 15,
@@ -271,6 +271,33 @@ jobs:
                     enabled: false
                 },
                 automaticLayout: true
+            });
+
+            let smartAssed = false;
+            ed.onDidChangeModelContent(() => {
+                if (smartAssed || !/"NO":\s*Norway/.test(ed.getValue())) return;
+                smartAssed = true;
+                const toast = document.createElement('div');
+                toast.textContent = '😏 Yes, exactly like that.';
+                Object.assign(toast.style, {
+                    position: 'fixed',
+                    bottom: '2em',
+                    right: '2em',
+                    background: '#000',
+                    color: '#fff',
+                    padding: '.8em 1.2em',
+                    borderRadius: '8px',
+                    font: '15px monospace',
+                    zIndex: 9999,
+                    opacity: 0,
+                    transition: 'opacity .4s',
+                });
+                document.body.appendChild(toast);
+                requestAnimationFrame(() => { toast.style.opacity = 1; });
+                setTimeout(() => {
+                    toast.style.opacity = 0;
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
             });
         });
     }());
